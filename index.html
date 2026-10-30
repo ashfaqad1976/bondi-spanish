@@ -74,8 +74,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .route{position:relative;display:grid;gap:26px;padding-block:18px 40px}
 .route svg.road{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .stop{position:relative;display:flex;align-items:center;gap:16px;z-index:1}
-.stop:nth-child(odd){flex-direction:row}
-.stop:nth-child(even){flex-direction:row-reverse;text-align:right}
+.stop:nth-of-type(odd){flex-direction:row}
+.stop:nth-of-type(even){flex-direction:row-reverse;text-align:right}
 .disc{flex:none;width:84px;height:84px;border-radius:50%;border:0;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:28px;
   background:var(--celeste);color:#fff;box-shadow:0 7px 0 color-mix(in srgb,var(--celeste) 60%,#000)}
 .disc:active{transform:translateY(5px);box-shadow:0 2px 0 color-mix(in srgb,var(--celeste) 60%,#000)}
@@ -86,7 +86,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .stop .label small{color:var(--muted);font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.08em}
 .stop.current .disc{outline:5px solid color-mix(in srgb,var(--celeste) 30%,transparent);outline-offset:4px}
 .bus{position:absolute;top:-30px;font-size:30px}
-.stop:nth-child(odd) .bus{left:56px}.stop:nth-child(even) .bus{right:56px}
+.stop:nth-of-type(odd) .bus{left:56px}.stop:nth-of-type(even) .bus{right:56px}
 .crowns{color:var(--sun);font-size:15px;letter-spacing:2px}
 
 /* lesson */
@@ -118,6 +118,33 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tip p{margin:0;line-height:1.55;max-width:60ch}
 .tip ul{margin:0;padding-left:20px;display:grid;gap:8px;line-height:1.5}
 .es{font-weight:800;color:var(--celeste)}
+.chat{flex:1;display:flex;flex-direction:column;gap:12px;padding-block:8px 16px}
+.msg{display:flex;gap:10px;align-items:flex-start;max-width:88%}
+.msg .bub{background:var(--surface);border:2px solid var(--line);border-radius:18px 18px 18px 6px;padding:12px 14px;min-width:0}
+.msg.me{align-self:flex-end}
+.msg.me .bub{background:var(--celeste);color:#fff;border-color:transparent;border-radius:18px 18px 6px 18px}
+.msg.hint .bub{background:var(--sun);color:var(--sun-ink);border-color:transparent}
+.es-line{font-weight:800;font-size:19px;line-height:1.35}
+.en-line{color:var(--muted);font-weight:700;margin-top:4px;line-height:1.4}
+.msg.me .en-line,.msg.me .en-toggle{color:#fff;opacity:.9}
+.msg.hint .en-line{color:var(--sun-ink)}
+.en-toggle{padding:4px 0 0;font-size:14px}
+.mini{width:40px;height:40px;border-radius:12px;border:0;background:var(--celeste);color:#fff;display:grid;place-items:center;flex:none}
+.mini svg{width:60%;height:60%}
+.robi-head{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.robi-head svg{width:48px;height:48px;flex:none}
+.robi-head b{font-family:var(--display);font-size:20px;display:block}
+.robi-head small{color:var(--muted);font-weight:700}
+.replies{display:grid;gap:10px}
+.replies .opt{font-size:18px;padding:13px 16px}
+.typerow{display:flex;gap:10px}
+.typerow .typein{flex:1;min-width:0;font-size:19px;padding:12px}
+.typerow .btn{padding:12px 16px}
+.dots span{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin:0 2px;animation:blink 1s infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{50%{opacity:.25}}
+.chatbtn{justify-self:start;background:var(--celeste-soft);color:var(--celeste);border:0;border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;margin-top:4px}
+.stop:nth-of-type(even) .chatbtn{justify-self:end}
 .newword{display:inline-block;background:var(--sun);color:var(--sun-ink);font-size:13px;font-weight:800;border-radius:8px;padding:3px 8px;letter-spacing:.06em;text-transform:uppercase}
 
 /* bottom check bar */
@@ -223,12 +250,68 @@ const COURSE = [
   sentences:[["Ya voy, llego en diez minutos","I'm on my way, I'll be there in ten minutes"],["Avisame cuando llegues","Let me know when you arrive"],["¿Dónde estás?","Where are you?"],["Nos hablamos, beso","Talk later, kisses"]]}
 ];
 
+/* ---------- Robi's conversations: one per stop. An option with no feedback (null) is a good reply. ---------- */
+const CHATS={
+ hola:{turns:[
+  {r:["¡Hola! Soy Robi. ¿Todo bien?","Hi! I'm Robi. All good?"],o:[["Todo bien, ¿y vos?","All good, and you?",null],["Chau, nos vemos","Bye, see you","We only just met! Say hello first, not bye."],["De nada","You're welcome","De nada is the answer to gracias. Robi asked if all is good."]]},
+  {r:["¡Ta! ¿Cómo andás hoy?","OK! How are you doing today?"],o:[["Bien, gracias","Good, thanks",null],["Buenas noches","Good evening","That's a greeting. Robi asked how you are doing."],["Nos vemos","See you","That's a goodbye. Tell Robi how you are."]]},
+  {r:["¡Qué bueno! Bueno, me tengo que ir.","Great! Well, I have to go."],o:[["Ta, chau, nos vemos","OK, bye, see you",null],["Hola, ¿todo bien?","Hi, all good?","You already said hello. Now it's time for bye."],["Buen día","Good morning","Buen día is a greeting. Try a goodbye."]]}],
+  end:["¡Chau! Nos vemos, bo.","Bye! See you, mate."]},
+ yo:{turns:[
+  {r:["¡Hola! Me llamo Robi. ¿Cómo te llamás?","Hi! My name is Robi. What's your name?"],o:[["Me llamo {name}","My name is {name}",null],["Tengo trece años","I'm thirteen","That's your age. Robi asked your name."],["Mi hermana","My sister","That means my sister. Tell Robi your name."]]},
+  {r:["Mucho gusto, {name}. ¿Cuántos años tenés?","Nice to meet you, {name}. How old are you?"],o:[["Tengo catorce años","I'm fourteen",null],["Tengo veintiún años","I'm twenty-one",null],["Soy catorce","I am fourteen (wrong)","In Spanish you HAVE years: tengo catorce años."]]},
+  {r:["¡Bárbaro! ¿Y de dónde sos?","Great! And where are you from?"],o:[["Soy de lejos, ¡pero me encanta Uruguay!","I'm from far away, but I love Uruguay!",null],["Vos sos de acá","You are from here","Vos sos means you are. For yourself, say soy."],["Mi familia","My family","That's my family. Robi asked where you're from."]]}],
+  end:["¡Qué bueno! Bienvenida a Uruguay.","How nice! Welcome to Uruguay."]},
+ vos:{turns:[
+  {r:["¿Vos hablás español?","Do you speak Spanish?"],o:[["Sí, hablo un poco","Yes, I speak a little",null],["Sí, vos hablás","Yes, you speak","Vos hablás means you speak. For yourself, say hablo."],["Yo tengo","I have","That means I have. Robi asked if you speak Spanish."]]},
+  {r:["¡Bien! ¿Y qué querés hacer hoy?","Good! And what do you want to do today?"],o:[["Quiero ir a la playa","I want to go to the beach",null],["Querés ir a la playa","You want to go to the beach","Querés is the vos form, you want. For I want, say quiero."],["Vos sos la playa","You are the beach","That means you are the beach! Try quiero..."]]},
+  {r:["¿Vos tenés tiempo mañana?","Do you have time tomorrow?"],o:[["Sí, tengo tiempo","Yes, I have time",null],["Sí, tenés tiempo","Yes, you have time","Tenés means you have. Yo tengo means I have."],["Sí, vos sos","Yes, you are","That means you are. Robi asked about time."]]}],
+  end:["¡Ta! Vos sos re buena en español.","OK! You're really good at Spanish."]},
+ mate:{turns:[
+  {r:["Buenas, ¿qué vas a pedir?","Hi, what are you going to order?"],o:[["¿Me das un chivito, por favor?","Can I have a chivito, please?",null],["La cuenta, por favor","The bill, please","That asks for the bill. You haven't eaten yet!"],["El termo","The thermos","That's the thermos. Order some food."]]},
+  {r:["¿Y para tomar?","And to drink?"],o:[["Agua sin gas, por favor","Still water, please",null],["Los bizcochos","The pastries","Those are pastries, not a drink."],["De nada","You're welcome","De nada answers gracias. Order a drink."]]},
+  {r:["Acá tenés. ¿Querés un mate también?","Here you go. Do you want a mate too?"],o:[["Sí, por favor","Yes, please",null],["No, gracias","No, thanks",null],["Me lo llevo","I'll take it","That's for buying something in a shop."]]},
+  {r:["¿Algo más?","Anything else?"],o:[["No, la cuenta, por favor","No, the bill, please",null],["Hola, ¿todo bien?","Hi, all good?","You already said hi. Ask for the bill."],["A la derecha","On the right","That's a direction. Ask for the bill."]]}],
+  end:["Son cuatrocientos cincuenta pesos. ¡Que lo disfrutes!","That's 450 pesos. Enjoy!"]},
+ bondi:{turns:[
+  {r:["¡Hola! ¿Te puedo ayudar?","Hi! Can I help you?"],o:[["Sí, ¿dónde queda la parada?","Yes, where is the bus stop?",null],["Me bajo acá","I'm getting off here","That's for when you're already on the bus. Find the stop first!"],["Un chivito, por favor","A chivito, please","This is the street, not a café!"]]},
+  {r:["Queda acá, a la derecha. ¿A dónde vas?","It's here, on the right. Where are you going?"],o:[["Voy a la rambla","I'm going to the seafront",null],["A la izquierda","On the left","Robi asked where you're going, not left or right."],["Es re caro","It's really expensive","That's about prices. Say where you're going."]]},
+  {r:["Tomá el próximo bondi. ¿Tenés boleto?","Take the next bus. Do you have a ticket?"],o:[["No, ¿dónde compro el boleto?","No, where do I buy the ticket?",null],["Sí, tengo trece años","Yes, I'm thirteen","That's your age! Robi asked about a ticket."],["Chau, bo","Bye, mate","Ask about the ticket before you go."]]}],
+  end:["Se lo pagás al chofer arriba del bondi. ¡Buen viaje!","You pay the driver on the bus. Have a good trip!"]},
+ compras:{turns:[
+  {r:["¡Buenas! ¿Qué buscás?","Hi! What are you looking for?"],o:[["Busco championes","I'm looking for trainers",null],["Busco la parada","I'm looking for the bus stop","You're at the market, not the bus stop!"],["Soy de lejos","I'm from far away","Robi asked what you're looking for."]]},
+  {r:["Mirá estos. Son re lindos.","Look at these. They're really nice."],o:[["¿Cuánto salen?","How much are they?",null],["¿Dónde queda?","Where is it?","That asks where something is. Ask the price."],["Buenas noches","Good evening","Ask how much they cost."]]},
+  {r:["Salen dos mil pesos.","They're two thousand pesos."],o:[["¡Es re caro! ¿Más barato?","That's really expensive! Cheaper?",null],["Ta, me los llevo","OK, I'll take them",null],["De nada","You're welcome","De nada answers gracias. Say if you'll buy them."]]}],
+  end:["¡Trato hecho! Que los disfrutes.","Deal! Enjoy them."]},
+ planes:{turns:[
+  {r:["¿Qué hacés el finde?","What are you doing at the weekend?"],o:[["Voy a ir a la playa","I'm going to go to the beach",null],["Fui a la playa","I went to the beach","That's the past. For plans use voy a + verb."],["Buenas noches","Good evening","Tell Robi your plan for the weekend."]]},
+  {r:["¡Qué bueno! ¿Vamos juntos?","Great! Shall we go together?"],o:[["¡De una!","For sure!",null],["Me lo llevo","I'll take it","That's for shopping. Say yes like a local!"],["La cuenta","The bill","Robi asked if you want to go together."]]},
+  {r:["¿A qué hora?","What time?"],o:[["A las diez","At ten",null],["Mañana","Tomorrow","That's tomorrow. Robi asked what time."],["La playa","The beach","Robi asked what time."]]}],
+  end:["Ta, nos vemos el sábado a las diez. ¡Traé el mate!","OK, see you Saturday at ten. Bring the mate!"]},
+ amigos:{turns:[
+  {r:["Bo, ¿viste la película nueva?","Hey, did you see the new film?"],o:[["¡Sí! Está de más","Yes! It's awesome",null],["Sí, ¡qué embole!","Yes, what a drag!",null],["Tengo championes","I have trainers","Robi asked about the film!"]]},
+  {r:["Mañana llueve todo el día.","Tomorrow it'll rain all day."],o:[["¡Qué embole!","What a drag!",null],["¡Me lo llevo!","I'll take it!","That's for shopping. React to the rain."],["Me bajo acá","I'm getting off here","That's for the bus. React to the rain."]]},
+  {r:["¿Sabés a qué hora empieza el partido?","Do you know what time the match starts?"],o:[["Ni idea, bo","No idea, mate",null],["A las ocho","At eight",null],["De nada","You're welcome","De nada answers gracias. Robi asked a question."]]}],
+  end:["Ta, después averiguo. ¡Nos vemos!","OK, I'll find out later. See you!"]},
+ futbol:{turns:[
+  {r:["¿De qué cuadro sos?","Which team do you support?"],o:[["Soy de Peñarol","I support Peñarol",null],["Soy de Nacional","I support Nacional",null],["Tengo un tambor","I have a drum","Robi asked about your football team."]]},
+  {r:["Hoy hay partido. ¿Vamos?","There's a match today. Shall we go?"],o:[["¡De una! ¿A qué hora?","For sure! What time?",null],["El carnaval","Carnival","Robi asked if you want to go to the match."],["Agua sin gas","Still water","That's a drink order! Answer Robi."]]},
+  {r:["¿Te gusta el candombe?","Do you like candombe?"],o:[["¡Sí, me encanta!","Yes, I love it!",null],["No sé, nunca lo escuché","I don't know, I've never heard it",null],["Sí, vos sos","Yes, you are","That means you are. Say if you like it."]]}],
+  end:["En febrero vamos al carnaval a ver murgas y tambores. ¡Te va a encantar!","In February we'll go to carnival to see murgas and drums. You'll love it!"]},
+ mensajes:{turns:[
+  {r:["¿Dónde estás? 🙂","Where are you?"],o:[["Ya voy, llego en diez minutos","I'm on my way, I'll be there in ten minutes",null],["Tqm","Love you lots","Cute! But Robi asked where you are."],["La cuenta, por favor","The bill, please","That's for a café. Say where you are."]]},
+  {r:["Ta. Avisame cuando llegues.","OK. Let me know when you arrive."],o:[["Dale, te aviso","OK, I'll let you know",null],["Buen día","Good morning","Answer Robi's message."],["Soy de Peñarol","I support Peñarol","Robi asked you to message when you arrive."]]},
+  {r:["¿Ya llegaste? Te espero en la parada.","Are you here yet? I'm waiting at the stop."],o:[["¡Sí, ya estoy acá!","Yes, I'm here now!",null],["Nos hablamos, beso","Talk later, kisses","That's a goodbye, but you just arrived!"],["Llego tarde","I'm running late",null]]}],
+  end:["¡Genial! Nos vemos, beso 👋","Great! See you, kisses."]}
+};
+
 /* ---------- Storage (per device, per learner) ---------- */
 const KEY="bondi-spanish-v1";
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||null}catch(e){return null}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 const blankLearner=n=>({name:n,xp:0,streak:0,last:null,done:{}});
-let state=load()||{learners:[blankLearner("Rueda"),blankLearner("Player 2")],active:null};
+let state=load()||{learners:[blankLearner("Rueda"),blankLearner("Dua")],active:null};
+state.learners.forEach(l=>{if(l.name==="Player 2") l.name="Dua"; l.chats=l.chats||{}});
 const today=()=>new Date().toLocaleDateString("en-CA");
 function streakOf(L){ if(!L.last) return 0; const d=(new Date(today())-new Date(L.last))/864e5; return d<=1?L.streak:0 }
 
@@ -249,7 +332,7 @@ function speak(text,slow){
     clearTimeout(speakTimer);
     const busy=ss.speaking||ss.pending; if(busy) ss.cancel();
     ss.resume();
-    const u=new SpeechSynthesisUtterance(text.replace(/\bxq\b/g,"porque").replace(/\btqm\b/g,"te quiero mucho"));
+    const u=new SpeechSynthesisUtterance(text.replace(/\p{Extended_Pictographic}/gu,"").replace(/\bxq\b/g,"porque").replace(/\btqm\b/g,"te quiero mucho"));
     if(voice){u.voice=voice; u.lang=voice.lang} else u.lang="es-ES";
     u.rate=slow?.6:.9; u.onend=u.onerror=()=>{if(liveUtterance===u) liveUtterance=null};
     liveUtterance=u;
@@ -323,15 +406,16 @@ function route(){
     <span class="chip fire">🔥 ${streakOf(p)}</span><span class="chip xp">⚡ ${p.xp}</span></div>
    <div style="display:grid;gap:4px;padding-block:6px 4px"><span class="prompt-kind">Línea 1 · Montevideo</span><h2 style="font-size:28px">Your route: ${doneN} of 10 stops</h2></div>
    <div class="route" id="route">${COURSE.map((c,i)=>{
-     const done=!!p.done[c.id], locked=!done&&i>current&&current!==-1, cur=i===current;
+     const done=!!p.done[c.id], locked=false, cur=i===current;
      const stars=done?"★".repeat(p.done[c.id])+"☆".repeat(3-p.done[c.id]):"";
      return `<div class="stop ${done?"done":""} ${locked?"locked":""} ${cur?"current":""}">
        ${cur?'<span class="bus" aria-hidden="true">🚌</span>':""}
        <button class="disc" data-i="${i}" ${locked?"disabled":""} aria-label="${esc(c.title)}${locked?" (locked)":""}">${locked?"🔒":i+1}</button>
-       <span class="label"><small>Parada ${i+1} · ${c.sub}</small><b>${c.title}</b>${stars?`<span class="crowns">${stars}</span>`:""}</span></div>`}).join("")}</div>
+       <span class="label"><small>Parada ${i+1} · ${c.sub}</small><b>${c.title}</b>${stars?`<span class="crowns">${stars}</span>`:""}<button class="chatbtn" data-c="${i}">💬 Chat with Robi${p.chats[c.id]?" ✓":""}</button></span></div>`}).join("")}</div>
    ${current===-1?'<p class="note">You finished the whole route. ¡Bien ahí! Replay any stop to keep your streak going.</p>':""}`;
   $("#back").onclick=home;
   app.querySelectorAll(".disc:not([disabled])").forEach(b=>b.onclick=()=>startLesson(+b.dataset.i));
+  app.querySelectorAll(".chatbtn").forEach(b=>b.onclick=()=>startChat(+b.dataset.c));
   drawRoad();
   const curEl=app.querySelector(".stop.current"); if(curEl) curEl.scrollIntoView({block:"center"});
 }
@@ -458,9 +542,9 @@ function finish(){
   app.innerHTML=`<div class="finish">${SUN.replace('class="sunmark"','class="sunmark" style="width:110px;height:110px;margin:0 auto"')}
     <h2>Parada ${S.i+1} done!</h2><p class="muted" style="font-weight:800;margin:0;font-size:20px">${"★".repeat(stars)}${"☆".repeat(3-stars)} · ${S.c.title}</p>
     <div class="tiles"><div class="stat"><small>XP</small><b>+${gained}</b></div><div class="stat"><small>Accuracy</small><b>${acc}%</b></div><div class="stat"><small>Streak</small><b>🔥 ${p.streak}</b></div></div>
-    <button class="btn sun wide" id="next">Continue</button><button class="ghost" id="again">Practise this stop again</button></div>`;
+    <button class="btn wide" id="chat">💬 Chat with Robi</button><button class="btn sun wide" id="next">Continue</button><button class="ghost" id="again">Practise this stop again</button></div>`;
   confetti(); blip(true);
-  $("#next").onclick=route; $("#again").onclick=()=>startLesson(S.i);
+  $("#next").onclick=route; $("#chat").onclick=()=>startChat(S.i); $("#again").onclick=()=>startLesson(S.i);
 }
 function confetti(){
   if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -470,6 +554,61 @@ function confetti(){
   const ps=Array.from({length:120},()=>({x:W/2,y:H*.35,vx:(Math.random()-.5)*12,vy:-Math.random()*12-4,r:Math.random()*6+4,c:cols[Math.random()*3|0],a:Math.random()*6}));
   let f=0;(function tick(){x.clearRect(0,0,W,H);ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});
     if(++f<110)requestAnimationFrame(tick);else c.remove()})();
+}
+
+/* ---------- Robi, the conversation robot ---------- */
+const ROBI='<svg viewBox="0 0 64 64" aria-hidden="true"><line x1="32" y1="4" x2="32" y2="14" stroke="var(--muted)" stroke-width="3"/><circle cx="32" cy="6" r="5" fill="var(--sun)"/><rect x="8" y="14" width="48" height="40" rx="14" fill="var(--celeste)"/><rect x="15" y="22" width="34" height="20" rx="10" fill="var(--surface)"/><circle cx="25" cy="32" r="4" fill="var(--ink)"/><circle cx="39" cy="32" r="4" fill="var(--ink)"/><path d="M26 47 Q32 51 38 47" stroke="var(--surface)" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="3" y="28" width="5" height="12" rx="2.5" fill="var(--celeste)"/><rect x="56" y="28" width="5" height="12" rx="2.5" fill="var(--celeste)"/></svg>';
+function similarity(a,b){const A=new Set(norm(a).split(" ")),B=new Set(norm(b).split(" "));let n=0;A.forEach(w=>{if(B.has(w))n++});return n/Math.max(A.size,B.size)}
+function startChat(i){
+  const c=COURSE[i], conv=CHATS[c.id], p=L(); const fill=s=>s.replace(/\{name\}/g,p.name);
+  let t=0, slips=0, busy=false;
+  app.innerHTML=`<div class="lessonbar"><button class="ghost" id="quit" aria-label="Leave chat">✕</button><div class="robi-head">${ROBI}<div><b>Robi</b><small>Parada ${i+1} · ${esc(c.title)}</small></div></div></div>
+    <div class="chat" id="chatlog" aria-live="polite"></div>
+    <div class="footer" id="foot"><div class="replies" id="replies"></div>
+      <div class="typerow" id="typerow" hidden><input id="typed" class="typein" autocomplete="off" autocapitalize="off" spellcheck="false" lang="es" placeholder="Escribí acá (write here)"><button class="btn" id="send">Send</button></div>
+      <button class="ghost" id="toggleType">⌨️ Type instead</button></div>`;
+  $("#quit").onclick=route;
+  const log=$("#chatlog");
+  function bubble(who,es,en,showEn){
+    const d=document.createElement("div"); d.className="msg "+who;
+    d.innerHTML=`${who!=="me"?`<button class="mini" aria-label="Play">${SPK}</button>`:""}<div class="bub"><div class="es-line">${esc(es)}</div>${en?`${showEn?"":`<button class="ghost en-toggle">Show English</button>`}<div class="en-line" ${showEn?"":"hidden"}>${esc(en)}</div>`:""}</div>`;
+    const tg=d.querySelector(".en-toggle"); if(tg) tg.onclick=()=>{d.querySelector(".en-line").hidden=false; tg.remove()};
+    const m=d.querySelector(".mini"); if(m) m.onclick=()=>speak(es);
+    log.appendChild(d); d.scrollIntoView({block:"end",behavior:"smooth"});
+  }
+  function robiSay(es,en,then,cls,showEn){
+    busy=true; const d=document.createElement("div"); d.className="msg robi"; d.innerHTML=`<div class="bub dots"><span></span><span></span><span></span></div>`; log.appendChild(d); d.scrollIntoView({block:"end"});
+    setTimeout(()=>{d.remove(); bubble(cls||"robi",es,en,showEn); speak(es); busy=false; then&&then()},700);
+  }
+  function showReplies(){
+    const T=conv.turns[t]; $("#replies").innerHTML=shuffle(T.o).map(o=>`<button class="opt" data-k="${T.o.indexOf(o)}">${esc(fill(o[0]))}</button>`).join("");
+    app.querySelectorAll("#replies .opt").forEach(b=>b.onclick=()=>{if(!busy) answer(T.o[+b.dataset.k])});
+  }
+  function turn(){const T=conv.turns[t]; robiSay(fill(T.r[0]),fill(T.r[1]),showReplies)}
+  function answer(o,typedText){
+    $("#replies").innerHTML=""; bubble("me",typedText||fill(o[0]),fill(o[1]));
+    if(o[2]==null){blip(true); t++; setTimeout(t<conv.turns.length?turn:end,350)}
+    else{blip(false); slips++; robiSay("¡Casi! Probá otra vez.",o[2],showReplies,"hint",true)}
+  }
+  function sendTyped(){
+    const v=$("#typed").value.trim(); if(!v||busy) return; $("#typed").value="";
+    const T=conv.turns[t]; let best=null,score=0;
+    T.o.forEach(o=>{const sc=similarity(v,fill(o[0])); if(sc>score){score=sc;best=o}});
+    if(best&&score>=.7) answer(best,v);
+    else{$("#replies").innerHTML=""; bubble("me",v,""); robiSay("Perdón, no entendí.","Sorry, I didn't understand. Check your spelling, or tap one of the replies.",showReplies,"hint",true)}
+  }
+  $("#send").onclick=sendTyped; $("#typed").onkeydown=e=>{if(e.key==="Enter")sendTyped()};
+  $("#toggleType").onclick=()=>{const r=$("#typerow"); r.hidden=!r.hidden; $("#toggleType").textContent=r.hidden?"⌨️ Type instead":"👆 Tap replies instead"; if(!r.hidden)$("#typed").focus()};
+  function end(){
+    robiSay(fill(conv.end[0]),fill(conv.end[1]),()=>{
+      const first=!p.chats[c.id]; p.chats[c.id]=true; const gained=first?10:5; p.xp+=gained;
+      const td=today(); if(p.last!==td){p.streak=streakOf(p)+1; p.last=td} save();
+      $("#typerow").hidden=true; $("#toggleType").hidden=true;
+      $("#replies").innerHTML=`<div class="verdict" style="color:var(--good)">Chat done! +${gained} XP${slips?"":" · perfect"}</div><button class="btn sun wide" id="done">Back to my route</button><button class="ghost" id="again">Chat again</button>`;
+      $("#done").onclick=route; $("#again").onclick=()=>startChat(i);
+    });
+  }
+  turn();
 }
 
 state.active!=null&&state.learners[state.active]?route():home();
