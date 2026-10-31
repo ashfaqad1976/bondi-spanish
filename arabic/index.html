@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-512.png">
+<meta name="apple-mobile-web-app-title" content="Yalla">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0B0D17">
+<title>Yalla! Gulf Arabic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Rubik:wght@500;700;800&display=swap">
+<style>
+/* Theme: dark arcade. Neon cyan for action, gold for rewards, Qatar maroon as the brand accent. */
+:root{
+  --bg:#0B0D17; --bg2:#121527; --surface:#181C33; --surface2:#20254A; --ink:#EEF1FF; --muted:#8F98C2; --line:#2B3160;
+  --cyan:#29E3FF; --cyan-ink:#03222A; --gold:#FFC93C; --gold-ink:#3A2700; --maroon:#A3214F; --lime:#7CFF6B;
+  --good:#3BE48B; --good-soft:#0F3A27; --bad:#FF5470; --bad-soft:#40141F;
+  --display:"Chakra Petch","Avenir Next Condensed",system-ui,sans-serif;
+  --body:"Rubik","Avenir Next",system-ui,sans-serif;
+  --arabic:"Rubik","Geeza Pro","SF Arabic","Noto Sans Arabic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(1200px 600px at 50% -200px,#1C1F45 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+[hidden]{display:none!important}
+.app{max-width:640px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;
+  padding:max(12px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:.01em}
+.muted{color:var(--muted)}
+.ar{font-family:var(--arabic);direction:rtl;unicode-bidi:isolate;font-weight:700}
+.tr{color:var(--cyan);font-weight:700;font-style:normal}
+
+.btn{border:0;border-radius:14px;padding:16px 20px;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--cyan);color:var(--cyan-ink);box-shadow:0 5px 0 #0E7F93,0 0 24px #29E3FF40;transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #0E7F93}
+.btn.gold{background:var(--gold);color:var(--gold-ink);box-shadow:0 5px 0 #A67A0B,0 0 24px #FFC93C40}
+.btn.good{background:var(--good);color:#04230F;box-shadow:0 5px 0 #17844D}
+.btn.bad{background:var(--bad);color:#2A0008;box-shadow:0 5px 0 #A3243A}
+.btn:disabled{background:var(--line);color:var(--muted);box-shadow:0 5px 0 #1A1E3F;cursor:default}
+.btn.wide{width:100%}
+.ghost{background:none;border:0;color:var(--muted);font-weight:700;padding:8px}
+
+/* start screen */
+.hero{padding-block:30px 10px;display:grid;gap:10px}
+.logo{font-family:var(--display);font-weight:700;font-size:clamp(56px,16vw,88px);line-height:.9;letter-spacing:-.01em;text-transform:uppercase}
+.logo .y{color:var(--cyan);text-shadow:0 0 30px #29E3FF80}
+.logo small{display:block;font-size:.34em;letter-spacing:.18em;color:var(--gold);margin-top:8px}
+.logo-ar{font-family:var(--arabic);font-size:30px;color:var(--muted);direction:rtl}
+.players{display:grid;gap:12px;margin-top:18px}
+.player{background:linear-gradient(135deg,var(--surface2),var(--surface));border:2px solid var(--line);border-radius:20px;padding:18px;text-align:left;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;box-shadow:0 5px 0 #070915}
+.player:active{transform:translateY(3px);box-shadow:0 2px 0 #070915}
+.player .badge-rank{grid-row:span 3;width:64px;height:64px}
+.player .name{font-family:var(--display);font-size:28px;font-weight:700}
+.player .stats{display:flex;gap:14px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.player .rename{justify-self:start;font-size:14px;padding:4px 0}
+.addp{border:2px dashed var(--line);background:none;border-radius:20px;padding:14px;color:var(--muted);font-weight:800}
+
+/* hub */
+.top{display:flex;align-items:center;gap:8px;padding-block:6px 10px;position:sticky;top:0;background:var(--bg);z-index:5;margin-inline:-4px;padding-inline:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:5px 11px;font-weight:800;font-variant-numeric:tabular-nums;font-size:16px}
+.chip.fire{color:#FF8A3C}.chip.xp{color:var(--gold)}
+.spacer{flex:1}
+.rankcard{background:linear-gradient(135deg,#2A1640,var(--surface));border:2px solid var(--line);border-radius:20px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center}
+.rankcard svg{grid-row:span 3;width:72px;height:72px}
+.rankcard .rk{font-family:var(--display);font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.bar{height:12px;background:var(--bg2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--lime));border-radius:999px;transition:width .5s}
+.bar.gold i{background:linear-gradient(90deg,var(--gold),#FF8A3C)}
+.small{font-size:14px;color:var(--muted);font-weight:700}
+.daily{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:12px}
+.daily .bar{flex:1}
+.blitzcard{margin-top:14px;width:100%;border:0;border-radius:20px;padding:18px;text-align:left;display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;
+  background:linear-gradient(120deg,var(--maroon),#5B1240);box-shadow:0 5px 0 #3A0B26,0 0 30px #A3214F55;color:#fff}
+.blitzcard:active{transform:translateY(3px);box-shadow:0 2px 0 #3A0B26}
+.blitzcard b{font-family:var(--display);font-size:26px;letter-spacing:.06em;text-transform:uppercase}
+.blitzcard .big{grid-row:span 2;font-size:44px}
+.blitzcard.locked{background:var(--surface);box-shadow:0 5px 0 #070915;color:var(--muted)}
+.sec{font-family:var(--display);text-transform:uppercase;letter-spacing:.14em;font-size:14px;color:var(--muted);margin:22px 0 10px}
+.levels{display:grid;gap:12px}
+.lvl{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:12px 14px;text-align:left;box-shadow:0 5px 0 #070915}
+.lvl:active{transform:translateY(3px);box-shadow:0 2px 0 #070915}
+.lvl .num{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;font-family:var(--display);font-size:28px;font-weight:700;background:var(--surface2);color:var(--cyan);border:2px solid var(--cyan);box-shadow:0 0 16px #29E3FF40 inset}
+.lvl.done .num{background:var(--gold);color:var(--gold-ink);border-color:var(--gold);box-shadow:none}
+.lvl.locked{opacity:.55;box-shadow:0 5px 0 #070915;cursor:default}
+.lvl.locked .num{color:var(--muted);border-color:var(--line);box-shadow:none}
+.lvl.current{border-color:var(--cyan);box-shadow:0 5px 0 #0E7F93,0 0 22px #29E3FF30}
+.lvl small{display:block;color:var(--muted);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.lvl b{font-family:var(--display);font-size:21px;display:block;line-height:1.15}
+.lvl .ar{font-size:17px;color:var(--muted)}
+.stars{color:var(--gold);font-size:18px;letter-spacing:1px;white-space:nowrap}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.bdg{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:10px 4px;text-align:center;display:grid;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+.bdg i{font-style:normal;font-size:28px;filter:grayscale(1) opacity(.35)}
+.bdg.on{border-color:var(--gold);color:var(--ink)}
+.bdg.on i{filter:none}
+
+/* lesson */
+.lessonbar{display:flex;align-items:center;gap:12px;padding-block:8px 16px}
+.progress{flex:1;height:14px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--lime));transition:width .3s}
+.combo-chip{font-family:var(--display);font-weight:700;color:var(--gold);min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.stage{flex:1;display:flex;flex-direction:column;gap:18px}
+.kind{font-family:var(--display);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-size:14px}
+.prompt{font-family:var(--display);font-size:clamp(26px,6vw,34px);font-weight:700;line-height:1.15}
+.bigword{display:flex;align-items:center;gap:16px;background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px}
+.bigword .ar{font-size:clamp(40px,11vw,56px);line-height:1.3}
+.bigword .tr{font-size:20px;display:block}
+.bigword > div{flex:1;text-align:right;min-width:0}
+.speaker{width:56px;height:56px;border-radius:16px;border:0;background:var(--cyan);color:var(--cyan-ink);display:grid;place-items:center;box-shadow:0 5px 0 #0E7F93;flex:none}
+.speaker:active{transform:translateY(4px);box-shadow:0 1px 0 #0E7F93}
+.speaker.big{width:130px;height:130px;border-radius:30px;align-self:center;margin-block:12px}
+.speaker svg{width:55%;height:55%}
+.options{display:grid;gap:12px}
+.opt{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:14px 18px;text-align:left;font-weight:700;font-size:19px;box-shadow:0 4px 0 #070915;min-height:58px}
+.opt .ar{font-size:26px;display:block;text-align:right}
+.opt .tr{font-size:15px;display:block;text-align:right}
+.opt.sel{border-color:var(--cyan);background:#123848;box-shadow:0 4px 0 var(--cyan)}
+.opt.right{border-color:var(--good);background:var(--good-soft);box-shadow:0 4px 0 var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);box-shadow:0 4px 0 var(--bad)}
+.opt.gone{visibility:hidden}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pairs .col{display:grid;gap:12px;align-content:start;min-width:0}
+.pairs .opt{padding:10px 12px;font-size:16px;min-height:64px}
+.pairs .opt .ar{font-size:22px}
+.pairs .opt .tr{font-size:13px}
+.tray{min-height:110px;border-bottom:2px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;padding-block:10px;direction:rtl}
+.bank{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;direction:rtl}
+.tile{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:8px 14px;box-shadow:0 4px 0 #070915;display:grid;justify-items:center;gap:2px}
+.tile .ar{font-size:24px;line-height:1.3}
+.tile .tr{font-size:13px;direction:ltr}
+.tile.used{visibility:hidden}
+.tip{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:12px}
+.tip .flag{font-family:var(--display);font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;font-size:14px}
+.tip ul{margin:0;padding-left:20px;display:grid;gap:10px;line-height:1.5}
+.tip .ar{color:var(--gold);font-size:1.1em}
+.tip b.tr{color:var(--cyan)}
+.wordlist{display:grid;gap:8px}
+.wl{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;background:var(--bg2);border-radius:12px;padding:8px 12px;border:0;text-align:left}
+.wl .ar{grid-row:span 2;font-size:24px;order:2}
+.wl .en{font-weight:700}
+.wl .tr{font-size:14px}
+
+.footer{position:sticky;bottom:0;padding-block:14px calc(14px + env(safe-area-inset-bottom,0px));margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px))) calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--bg);display:grid;gap:10px;border-top:2px solid var(--line);margin-top:18px}
+.footer.ok{background:var(--good-soft);border-color:transparent}
+.footer.no{background:var(--bad-soft);border-color:transparent}
+.verdict{font-family:var(--display);font-weight:700;font-size:24px;text-transform:uppercase;letter-spacing:.04em}
+.footer.ok .verdict{color:var(--good)}.footer.no .verdict{color:var(--bad)}
+.verdict-sub{font-weight:700;line-height:1.4}
+.verdict-sub .ar{font-size:22px}
+
+/* results */
+.finish{flex:1;display:grid;align-content:center;text-align:center;gap:18px;padding-block:30px}
+.finish h2{font-size:clamp(38px,10vw,56px);text-transform:uppercase}
+.finish .stars{font-size:48px;letter-spacing:6px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:14px 6px;display:grid;gap:4px}
+.stat b{font-family:var(--display);font-size:28px;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.unlock{background:linear-gradient(120deg,#2A1640,var(--surface));border:2px solid var(--gold);border-radius:16px;padding:12px;font-weight:800;color:var(--gold)}
+
+/* blitz */
+.timer{font-family:var(--display);font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;min-width:70px;text-align:right}
+.timer.low{color:var(--bad);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{opacity:.5}}
+.blitzscore{font-family:var(--display);font-size:20px;color:var(--gold);font-weight:700}
+
+.pop{position:fixed;left:50%;top:20%;transform:translateX(-50%);font-family:var(--display);font-weight:700;font-size:30px;color:var(--gold);pointer-events:none;animation:pop .9s ease-out forwards;z-index:20;text-shadow:0 0 18px #FFC93C99;white-space:nowrap;text-transform:uppercase}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}20%{opacity:1;transform:translate(-50%,0) scale(1.1)}100%{opacity:0;transform:translate(-50%,-30px) scale(1)}}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--surface2);border:2px solid var(--gold);color:var(--ink);border-radius:16px;padding:12px 18px;font-weight:800;z-index:40;box-shadow:0 0 30px #FFC93C40;animation:toast 3.2s ease forwards;white-space:nowrap}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,20px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,10px)}}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
+.note{font-size:14px;color:var(--muted);line-height:1.5;text-align:center;margin-top:16px}
+.typein{width:100%;font:inherit;font-size:22px;font-weight:700;padding:16px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);-webkit-user-select:text;user-select:text}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app" id="app"></main>
+<canvas class="confetti" id="confetti" hidden></canvas>
+
+<script>
+/* ---------- Course content: Gulf (Khaleeji) Arabic as spoken in Qatar ----------
+   words: [arabic, transliteration, english]
+   sentences: {w:[[arabic,transliteration],...], en} with tiles in reading order (right to left on screen). */
+const COURSE=[
+ {id:"hala",title:"Hala Wallah",ar:"هلا والله",sub:"Greetings",
+  tip:{h:"Saying hi in Qatar",items:[
+   "<span class='ar'>هلا</span> <b class='tr'>hala</b> is a quick \"hi\". Add <b class='tr'>wallah</b> and it becomes a warm \"hey, great to see you\".",
+   "Arabic is read right to left. Each word also has the sound in English letters. The ' mark is a sound from the throat, like in <b class='tr'>'afwan</b>.",
+   "To a guy say <b class='tr'>shlonak?</b> To a girl say <b class='tr'>shlonich?</b> Both mean \"how are you?\"."]},
+  words:[["هلا","hala","hi"],["السلام عليكم","as-salaamu 'alaykum","peace be upon you (hello)"],["وعليكم السلام","wa 'alaykum is-salaam","and upon you peace (reply)"],["صباح الخير","sabaah il-khair","good morning"],["مساء الخير","masaa il-khair","good evening"],["شلونك؟","shlonak?","how are you? (to a guy)"],["زين","zain","good, fine"],["الحمد لله","il-hamdu lillah","thank God (I'm good)"],["شكراً","shukran","thanks"],["عفواً","'afwan","you're welcome"],["مع السلامة","ma'a is-salaama","bye"]],
+  sentences:[
+   {w:[["هلا","hala"],["والله","wallah"],["شلونك؟","shlonak?"]],en:"Hey! How are you?"},
+   {w:[["زين","zain"],["الحمد","il-hamdu"],["لله","lillah"]],en:"Good, thank God"},
+   {w:[["صباح","sabaah"],["الخير","il-khair"],["شلونك؟","shlonak?"]],en:"Good morning, how are you?"},
+   {w:[["شكراً","shukran"],["مع","ma'a"],["السلامة","is-salaama"]],en:"Thanks, bye"}]},
+ {id:"ana",title:"Player Profile",ar:"أنا أنس",sub:"About me",
+  tip:{h:"Introduce yourself",items:[
+   "<span class='ar'>اسمي</span> <b class='tr'>ismi</b> means \"my name is\". So: <b class='tr'>ismi Anas</b>.",
+   "Gulf Arabic has its own family words: <b class='tr'>akhooy</b> (my brother) and <b class='tr'>abooy</b> (my dad).",
+   "<b class='tr'>inta</b> is \"you\" to a guy, <b class='tr'>inti</b> to a girl."]},
+  words:[["اسمي","ismi","my name is"],["شنو اسمك؟","shinu ismak?","what's your name?"],["أنا","ana","I, me"],["إنت","inta","you (to a guy)"],["من وين إنت؟","min wain inta?","where are you from?"],["أنا من باكستان","ana min Pakistan","I'm from Pakistan"],["ساكن في الدوحة","saakin fid-Doha","I live in Doha"],["عمري","'umri","my age is"],["أخوي","akhooy","my brother"],["أختي","ukhti","my sister"],["أبوي","abooy","my dad"],["أمي","ummi","my mum"],["تشرفنا","tsharrafna","nice to meet you"]],
+  sentences:[
+   {w:[["اسمي","ismi"],["أنس","Anas"],["تشرفنا","tsharrafna"]],en:"My name is Anas, nice to meet you"},
+   {w:[["أنا","ana"],["من","min"],["باكستان","Pakistan"]],en:"I'm from Pakistan"},
+   {w:[["أنا","ana"],["ساكن","saakin"],["في","fi"],["الدوحة","id-Doha"]],en:"I live in Doha"},
+   {w:[["عمري","'umri"],["١٦","sitta'ash"],["سنة","sana"]],en:"I'm 16 years old"}]},
+ {id:"arqam",title:"Score Count",ar:"الأرقام",sub:"Numbers",
+  tip:{h:"Arabic numbers",items:[
+   "Arabic digits look like this: <span class='ar'>١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ١٠</span>",
+   "Words go right to left, but numbers go left to right. So 16 is <span class='ar'>١٦</span>.",
+   "The Gulf says <b class='tr'>ithnain</b> for two. Ask \"how many?\" with <b class='tr'>kam?</b>"]},
+  words:[["واحد","waahid","one (1)"],["اثنين","ithnain","two (2)"],["ثلاثة","thalaatha","three (3)"],["أربعة","arba'a","four (4)"],["خمسة","khamsa","five (5)"],["ستة","sitta","six (6)"],["سبعة","sab'a","seven (7)"],["ثمانية","thamaanya","eight (8)"],["تسعة","tis'a","nine (9)"],["عشرة","'ashara","ten (10)"],["كم؟","kam?","how many?"],["عندي","'indi","I have"]],
+  sentences:[
+   {w:[["كم","kam"],["عمرك؟","'umrak?"]],en:"How old are you?"},
+   {w:[["عندي","'indi"],["ثلاثة","thalaatha"],["إخوان","ikhwaan"]],en:"I have three brothers"},
+   {w:[["واحد","waahid"],["اثنين","ithnain"],["ثلاثة","thalaatha"]],en:"One, two, three"},
+   {w:[["الساعة","is-saa'a"],["كم؟","kam?"]],en:"What time is it?"}]},
+ {id:"akl",title:"Karak Run",ar:"كرك ومجبوس",sub:"Food and drink",
+  tip:{h:"Eat like a Qatari",items:[
+   "<span class='ar'>كرك</span> <b class='tr'>karak</b> is spiced milk tea. Qatar runs on it.",
+   "<span class='ar'>مجبوس</span> <b class='tr'>machboos</b> is spiced rice with meat or chicken, the national dish.",
+   "The Gulf says g for the letter ق: coffee is <b class='tr'>gahwa</b>. And rice is <b class='tr'>'aish</b>."]},
+  words:[["أبي","abi","I want"],["ماي","maay","water"],["كرك","karak","karak (spiced milk tea)"],["قهوة","gahwa","coffee"],["عيش","'aish","rice"],["مجبوس","machboos","machboos (rice and meat)"],["دجاج","dijaaj","chicken"],["خبز","khubz","bread"],["جوعان","joo'aan","hungry"],["لذيذ","latheeth","tasty"],["لو سمحت","law samaht","please, excuse me"],["الحساب","il-hisaab","the bill"],["وايد","waayid","very, a lot"]],
+  sentences:[
+   {w:[["أبي","abi"],["كرك","karak"],["لو سمحت","law samaht"]],en:"I want karak, please"},
+   {w:[["أنا","ana"],["جوعان","joo'aan"],["وايد","waayid"]],en:"I'm really hungry"},
+   {w:[["المجبوس","il-machboos"],["لذيذ","latheeth"],["وايد","waayid"]],en:"The machboos is really tasty"},
+   {w:[["الحساب","il-hisaab"],["لو سمحت","law samaht"]],en:"The bill, please"}]},
+ {id:"game",title:"Game On",ar:"يلا نلعب",sub:"Gaming",
+  tip:{h:"Gamer Arabic",items:[
+   "<span class='ar'>يلا</span> <b class='tr'>yalla</b> means \"come on, let's go\". You'll hear it every match.",
+   "<b class='tr'>fizt</b> = I won. <b class='tr'>khisart</b> = I lost. <b class='tr'>khalaas</b> = done, that's it.",
+   "Gulf gamers mix in English (GG, noob, lag), but the Arabic gets you respect in the lobby."]},
+  words:[["يلا","yalla","come on! let's go!"],["نلعب","nil'ab","let's play"],["لعبة","li'ba","a game"],["فزت","fizt","I won"],["خسرت","khisart","I lost"],["فريق","fareeg","team"],["مرحلة","marhala","level, stage"],["بسرعة","b-sur'a","fast, hurry"],["خلاص","khalaas","done, enough"],["حلو","helw","nice, cool"],["مرة ثانية","marra thaanya","again"],["صعب","sa'b","hard"]],
+  sentences:[
+   {w:[["يلا","yalla"],["نلعب","nil'ab"],["بسرعة","b-sur'a"]],en:"Come on, let's play, quick!"},
+   {w:[["فزت","fizt"],["مرة ثانية","marra thaanya"]],en:"I won again!"},
+   {w:[["هالمرحلة","hal-marhala"],["صعبة","sa'ba"],["وايد","waayid"]],en:"This level is really hard"},
+   {w:[["خلاص","khalaas"],["خسرت","khisart"]],en:"That's it, I lost"}]},
+ {id:"doha",title:"Doha Drive",ar:"في الدوحة",sub:"Getting around",
+  tip:{h:"Finding your way",items:[
+   "<span class='ar'>وين؟</span> <b class='tr'>wain?</b> means \"where?\". <b class='tr'>wain il-metro?</b> = where's the metro?",
+   "Gulf words: <b class='tr'>hni</b> (here), <b class='tr'>hnaak</b> (there), <b class='tr'>seeda</b> (straight on).",
+   "The Doha Metro has three lines: Red, Gold and Green."]},
+  words:[["وين؟","wain?","where?"],["هني","hni","here"],["هناك","hnaak","there"],["يمين","yimeen","right"],["يسار","yisaar","left"],["سيدة","seeda","straight on"],["المترو","il-metro","the metro"],["المول","il-mool","the mall"],["البيت","il-bait","home, the house"],["سيارة","sayyaara","car"],["روح","rooh","go"],["تعال","ta'aal","come"]],
+  sentences:[
+   {w:[["وين","wain"],["المترو؟","il-metro?"]],en:"Where's the metro?"},
+   {w:[["روح","rooh"],["سيدة","seeda"],["وبعدين","w-ba'dain"],["يمين","yimeen"]],en:"Go straight, then right"},
+   {w:[["أنا","ana"],["في","fi"],["البيت","il-bait"]],en:"I'm at home"},
+   {w:[["تعال","ta'aal"],["هني","hni"]],en:"Come here"}]},
+ {id:"slang",title:"Local Slang",ar:"شخبارك؟",sub:"Talk like a local",
+  tip:{h:"Sound like you're from here",items:[
+   "<span class='ar'>شخبارك؟</span> <b class='tr'>shakhbaarak?</b> is the Gulf \"what's up?\".",
+   "Qataris often say y for j. Man is <b class='tr'>rayyaal</b>, so <b class='tr'>ya rayyaal</b> = hey man, bro.",
+   "<b class='tr'>mub</b> means \"not\". <b class='tr'>mub mushkila</b> = no problem. Say <b class='tr'>mashallah</b> when something is impressive."]},
+  words:[["شخبارك؟","shakhbaarak?","what's up?"],["والله","wallah","I swear, for real"],["صج؟","sij?","really?"],["عادي","'aadi","no big deal"],["ما عليه","ma 'alaih","never mind"],["إن شاء الله","inshallah","hopefully"],["ما شاء الله","mashallah","wow, amazing"],["يا رجال","ya rayyaal","hey man, bro"],["أكيد","akeed","sure, definitely"],["مب","mub","not"],["مشكلة","mushkila","problem"]],
+  sentences:[
+   {w:[["شخبارك","shakhbaarak"],["يا رجال؟","ya rayyaal?"]],en:"What's up, bro?"},
+   {w:[["والله؟","wallah?"],["صج؟","sij?"]],en:"For real? Really?"},
+   {w:[["عادي","'aadi"],["مب","mub"],["مشكلة","mushkila"]],en:"No big deal, no problem"},
+   {w:[["ما شاء الله","mashallah"],["حلو","helw"],["وايد","waayid"]],en:"Wow, that's really cool"}]},
+ {id:"plans",title:"Squad Plans",ar:"باجر",sub:"Time and plans",
+  tip:{h:"Making plans",items:[
+   "<span class='ar'>باجر</span> <b class='tr'>baachir</b> means tomorrow. Only the Gulf says it this way.",
+   "<b class='tr'>il-heen</b> means now. <b class='tr'>ba'dain</b> means later.",
+   "<b class='tr'>inshallah baachir</b> (hopefully tomorrow) is the most common plan in Qatar."]},
+  words:[["الحين","il-heen","now"],["اليوم","il-yoom","today"],["باجر","baachir","tomorrow"],["أمس","ams","yesterday"],["بعدين","ba'dain","later"],["متى؟","mita?","when?"],["الساعة كم؟","is-saa'a kam?","what time?"],["نروح","nrooh","let's go"],["ودي","widdi","I'd love to"],["ما أقدر","ma agdar","I can't"],["مشغول","mashghool","busy"]],
+  sentences:[
+   {w:[["باجر","baachir"],["نروح","nrooh"],["المول؟","il-mool?"]],en:"Shall we go to the mall tomorrow?"},
+   {w:[["الحين","il-heen"],["ما أقدر","ma agdar"],["مشغول","mashghool"]],en:"I can't now, I'm busy"},
+   {w:[["متى","mita"],["نلعب؟","nil'ab?"]],en:"When are we playing?"},
+   {w:[["إن شاء الله","inshallah"],["باجر","baachir"]],en:"Hopefully tomorrow"}]},
+ {id:"koora",title:"Matchday",ar:"كورة",sub:"Football",
+  tip:{h:"Football in Qatar",items:[
+   "Qatar hosted the World Cup in 2022: <span class='ar'>كأس العالم</span> <b class='tr'>kaas il-'aalam</b>.",
+   "The national team is called <b class='tr'>il-'annaabi</b>, \"the maroons\", after the colour of the flag.",
+   "<b class='tr'>minu?</b> means who? So <b class='tr'>minu tshajji'?</b> = who do you support?"]},
+  words:[["كورة","koora","football"],["مباراة","mubaaraa","match"],["ملعب","mal'ab","stadium, pitch"],["لاعب","laa'ib","player"],["هدف","hadaf","goal"],["فاز","faaz","won"],["تعادل","ta'aadul","draw"],["أشجع","ashajji'","I support"],["منو؟","minu?","who?"],["العنابي","il-'annaabi","Al Annabi (Qatar's team)"],["كأس العالم","kaas il-'aalam","the World Cup"]],
+  sentences:[
+   {w:[["منو","minu"],["تشجع؟","tshajji'?"]],en:"Who do you support?"},
+   {w:[["أشجع","ashajji'"],["العنابي","il-'annaabi"]],en:"I support Al Annabi"},
+   {w:[["المباراة","il-mubaaraa"],["الساعة","is-saa'a"],["ثمانية","thamaanya"]],en:"The match is at eight"},
+   {w:[["فريقنا","fareegna"],["فاز","faaz"]],en:"Our team won!"}]},
+ {id:"chat",title:"Chat Mode",ar:"وينك؟",sub:"Texting",
+  tip:{h:"Texting in the Gulf",items:[
+   "Gulf teens often text Arabic in English letters with numbers. <b class='tr'>3</b> = the throat sound ع, <b class='tr'>7</b> = a strong h ح.",
+   "So <b class='tr'>'aadi</b> is texted as <b class='tr'>3adi</b>, and <b class='tr'>mashallah</b> as <b class='tr'>masha2allah</b>.",
+   "<span class='ar'>ههههه</span> is \"hahaha\". The letter ه is an h sound."]},
+  words:[["وينك؟","wainak?","where are you?"],["جاي","jaay","I'm coming"],["وصلت","wasalt","I've arrived"],["تأخرت","t'akhkhart","I'm late"],["شوي","shway","a bit"],["كلمني","kallimni","call me"],["نشوفك","nshoofak","see you"],["تمام","tamaam","all good, perfect"],["ههههه","hahaha","lol"]],
+  sentences:[
+   {w:[["وينك؟","wainak?"],["أنا","ana"],["جاي","jaay"]],en:"Where are you? I'm coming"},
+   {w:[["تأخرت","t'akhkhart"],["شوي","shway"]],en:"I'm a bit late"},
+   {w:[["كلمني","kallimni"],["بعدين","ba'dain"]],en:"Call me later"},
+   {w:[["تمام","tamaam"],["نشوفك","nshoofak"],["باجر","baachir"]],en:"Cool, see you tomorrow"}]}
+];
+
+/* ---------- Ranks and badges ---------- */
+const RANKS=[["Rookie",0,"#8F98C2"],["Bronze",300,"#D08A4E"],["Silver",800,"#C9D3E8"],["Gold",1500,"#FFC93C"],["Platinum",2500,"#5FF0D6"],["Diamond",4000,"#6FB7FF"],["Master",6000,"#C77DFF"],["Legend",9000,"#FF5470"]];
+const BADGES=[
+ ["first","🎮","First win",p=>Object.keys(p.done).length>=1],
+ ["flawless","💎","Flawless",p=>Object.values(p.done).some(s=>s===3)],
+ ["combo10","🔥","Combo x10",p=>p.bestCombo>=10],
+ ["blitz15","⚡","Blitz 15+",p=>p.blitzBest>=15],
+ ["streak3","📅","3-day streak",p=>p.streak>=3],
+ ["streak7","🗓️","7-day streak",p=>p.streak>=7],
+ ["gold","🏆","Gold rank",p=>p.xp>=1500],
+ ["allclear","👑","All clear",p=>Object.keys(p.done).length>=COURSE.length]];
+const DAILY_GOAL=60;
+const rankOf=xp=>{let i=0;RANKS.forEach((r,k)=>{if(xp>=r[1])i=k});return i};
+
+/* ---------- Storage (per device, per player) ---------- */
+const KEY="yalla-arabic-v1";
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+const blank=n=>({name:n,xp:0,streak:0,last:null,done:{},bestCombo:0,blitzBest:0,dayXP:0,day:null,badges:{}});
+let state=load()||{players:[blank("Anas")],active:null};
+const today=()=>new Date().toLocaleDateString("en-CA");
+function streakOf(p){if(!p.last)return 0;const d=Math.round((new Date(today())-new Date(p.last))/864e5);return d<=1?p.streak:0}
+function dayXP(p){return p.day===today()?p.dayXP:0}
+function award(p,xp){
+  const before=rankOf(p.xp);
+  p.xp+=xp; if(p.day!==today()){p.day=today();p.dayXP=0} p.dayXP+=xp;
+  const td=today(); if(p.last!==td){p.streak=streakOf(p)+1;p.last=td}
+  const after=rankOf(p.xp); const news=[];
+  if(after>before) news.push(`Rank up: ${RANKS[after][0]}!`);
+  BADGES.forEach(([id,ic,label,test])=>{if(!p.badges[id]&&test(p)){p.badges[id]=1;news.push(`${ic} Badge: ${label}`)}});
+  save(); return news;
+}
+
+/* ---------- Speech (Arabic voice; prefers Gulf locales) ---------- */
+let voice=null;
+function pickVoice(){
+  const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[];
+  const pref=["ar-QA","ar-AE","ar-KW","ar-BH","ar-SA","ar-OM","ar-001","ar"];
+  for(const p of pref){const v=vs.find(v=>v.lang.replace("_","-").toLowerCase().startsWith(p.toLowerCase()));if(v){voice=v;return}}
+}
+if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+let speakTimer=null,liveU=null;
+function speak(text,slow){
+  const ss=window.speechSynthesis;if(!ss)return null;
+  try{
+    if(!voice)pickVoice(); clearTimeout(speakTimer);
+    const busy=ss.speaking||ss.pending; if(busy)ss.cancel(); ss.resume();
+    const u=new SpeechSynthesisUtterance(text.replace(/ههههه/g,"هههه"));
+    if(voice){u.voice=voice;u.lang=voice.lang}else u.lang="ar-SA";
+    u.rate=slow?.6:.85; u.onend=u.onerror=()=>{if(liveU===u)liveU=null}; liveU=u;
+    if(busy)speakTimer=setTimeout(()=>{ss.resume();ss.speak(u)},80);else ss.speak(u);
+    return u;
+  }catch(e){return null}
+}
+function soundCheck(out){
+  const ss=window.speechSynthesis;
+  if(!ss){out.textContent="This browser can't speak. Open the link in Safari.";return}
+  pickVoice(); const who=voice?`${voice.name} (${voice.lang})`:"no Arabic voice found, using the default";
+  out.textContent=`Voice: ${who}. If you hear nothing, turn the volume up and switch off silent mode.`;
+  blip(true); speak("هلا والله، شلونك؟");
+}
+
+/* ---------- Sound effects ---------- */
+let ac=null;
+function tone(notes,type,vol){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  notes.forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+i*.08;o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.16);
+  o.connect(g).connect(ac.destination);o.start(t);o.stop(t+.18)})}catch(e){}}
+const blip=ok=>ok?tone([660,990],"square",.07):tone([200,150],"sawtooth",.06);
+const fanfare=()=>tone([523,659,784,1046,1318],"square",.07);
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const app=$("#app");
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const P=()=>state.players[state.active];
+const arw=w=>`<span class="ar">${esc(w[0])}</span><span class="tr">${esc(w[1])}</span>`;
+function rankBadge(i){const [n,,c]=RANKS[i];const pts=Array.from({length:6},(_,k)=>{const a=Math.PI/3*k-Math.PI/2;return `${50+42*Math.cos(a)},${50+42*Math.sin(a)}`}).join(" ");
+  return `<svg class="badge-rank" viewBox="0 0 100 100" aria-label="${n} rank"><polygon points="${pts}" fill="${c}22" stroke="${c}" stroke-width="5"/><polygon points="${pts}" fill="none" stroke="${c}" stroke-width="1.5" transform="translate(50 50) scale(.72) translate(-50 -50)"/>${Array.from({length:Math.min(i,4)},(_,k)=>`<path d="M${32+k*0} ${66-k*9} L50 ${56-k*9} L68 ${66-k*9}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}${i===0?`<circle cx="50" cy="52" r="8" fill="${c}"/>`:""}${i>4?`<path d="M50 24 l5 10 11 1 -8 7 3 11 -11 -6 -11 6 3 -11 -8 -7 11 -1z" fill="${c}"/>`:""}</svg>`}
+function popText(t){const d=document.createElement("div");d.className="pop";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),900)}
+function toasts(list){list.forEach((t,i)=>setTimeout(()=>{const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);fanfare();setTimeout(()=>d.remove(),3300)},i*3400))}
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cv=$("#confetti");cv.hidden=false;const ctx=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
+  const cols=["#29E3FF","#FFC93C","#7CFF6B","#FF5470","#C77DFF"];
+  const ps=Array.from({length:120},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,r:4+Math.random()*5,vy:2+Math.random()*3,vx:-1.5+Math.random()*3,c:cols[Math.random()*5|0],a:Math.random()*6}));
+  let f=0;(function tick(){ctx.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.a+=.1;ctx.fillStyle=p.c;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore()});
+    if(++f<170)requestAnimationFrame(tick);else{ctx.clearRect(0,0,cv.width,cv.height);cv.hidden=true}})();
+}
+
+/* ---------- Start screen ---------- */
+function home(){
+  state.active=null;save();
+  app.innerHTML=`<div class="hero"><div class="logo"><span class="y">Yalla!</span><small>Gulf Arabic</small></div>
+    <div class="logo-ar">يلا نتعلم خليجي</div>
+    <p class="muted" style="margin:0;font-weight:700;font-size:18px">Arabic the way Qatar speaks it. 10 levels, ranks to climb, and a 60-second Blitz to beat your high score.</p></div>
+   <div class="players">${state.players.map((p,i)=>`<div class="player" role="button" tabindex="0" data-i="${i}">
+     ${rankBadge(rankOf(p.xp))}<span class="name">${esc(p.name)}</span>
+     <span class="stats"><span>${RANKS[rankOf(p.xp)][0]}</span><span>🔥 ${streakOf(p)}</span><span>⚡ ${p.xp} XP</span><span>🎯 ${Object.keys(p.done).length}/10</span></span>
+     <button class="ghost rename" data-r="${i}">Change name</button></div>`).join("")}
+     ${state.players.length<4?'<button class="addp" id="addp">+ Add another player</button>':""}</div>
+   <div style="display:grid;justify-items:center;gap:6px;margin-top:18px"><button class="ghost" id="snd">🔊 Test sound</button><p class="note" id="sndout" style="margin:0" aria-live="polite"></p></div>
+   <p class="note">Progress saves on this phone. On iPhone: tap Share, then Add to Home Screen to get the app icon.</p>`;
+  $("#snd").onclick=()=>soundCheck($("#sndout"));
+  const ad=$("#addp"); if(ad) ad.onclick=()=>nameView(-1);
+  app.querySelectorAll(".player").forEach(el=>{const go=e=>{if(e.target.closest(".rename"))return;state.active=+el.dataset.i;save();hub()};el.onclick=go;el.onkeydown=e=>{if(e.key==="Enter")go(e)}});
+  app.querySelectorAll(".rename").forEach(b=>b.onclick=e=>{e.stopPropagation();nameView(+b.dataset.r)});
+}
+function nameView(i){
+  app.innerHTML=`<div class="hero"><h2>${i<0?"New player":"Change name"}</h2></div>
+   <input id="nm" class="typein" maxlength="16" value="${i<0?"":esc(state.players[i].name)}" placeholder="Name" autocomplete="off">
+   <div style="display:grid;gap:12px;margin-top:18px"><button class="btn wide" id="ok">Save</button><button class="ghost" id="cancel">Cancel</button>
+   ${i>0?'<button class="ghost" id="del" style="color:var(--bad)">Delete this player</button>':""}</div>`;
+  $("#nm").focus();
+  $("#ok").onclick=()=>{const v=$("#nm").value.trim();if(v){if(i<0)state.players.push(blank(v));else state.players[i].name=v;save()}home()};
+  $("#cancel").onclick=home;
+  const d=$("#del"); if(d) d.onclick=()=>{if(confirm(`Delete ${state.players[i].name} and all their progress?`)){state.players.splice(i,1);save();home()}};
+}
+
+/* ---------- Hub: rank, daily goal, blitz, levels, badges ---------- */
+const unlocked=(p,i)=>i===0||!!p.done[COURSE[i-1].id];
+function hub(){
+  const p=P(),ri=rankOf(p.xp),next=RANKS[ri+1],cur=COURSE.findIndex(c=>!p.done[c.id]);
+  const pct=next?Math.round((p.xp-RANKS[ri][1])/(next[1]-RANKS[ri][1])*100):100;
+  const dx=dayXP(p),blitzOpen=Object.keys(p.done).length>0;
+  app.innerHTML=`<div class="top"><button class="ghost" id="back" aria-label="Switch player">‹ ${esc(p.name)}</button><span class="spacer"></span>
+    <span class="chip fire">🔥 ${streakOf(p)}</span><span class="chip xp">⚡ ${p.xp}</span></div>
+   <div class="rankcard">${rankBadge(ri)}<span class="rk" style="color:${RANKS[ri][2]}">${RANKS[ri][0]}</span>
+     <div class="bar"><i style="width:${pct}%"></i></div>
+     <span class="small">${next?`${next[1]-p.xp} XP to ${next[0]}`:"Max rank. Absolute legend."}</span></div>
+   <div class="daily"><span style="font-size:24px">${dx>=DAILY_GOAL?"✅":"🎯"}</span><div style="flex:1;display:grid;gap:6px"><span class="small">Daily goal: ${Math.min(dx,DAILY_GOAL)}/${DAILY_GOAL} XP</span><div class="bar gold"><i style="width:${Math.min(100,dx/DAILY_GOAL*100)}%"></i></div></div></div>
+   <button class="blitzcard ${blitzOpen?"":"locked"}" id="blitz"><span><b>Blitz</b></span><span class="big">${blitzOpen?"⚡":"🔒"}</span>
+     <span style="font-weight:700;opacity:.9">${blitzOpen?`60 seconds. Best: ${p.blitzBest}`:"Clear level 1 to unlock"}</span></button>
+   <div class="sec">Levels</div>
+   <div class="levels">${COURSE.map((c,i)=>{const done=p.done[c.id],lock=!unlocked(p,i);
+     return `<button class="lvl ${done?"done":""} ${lock?"locked":""} ${i===cur?"current":""}" data-i="${i}" ${lock?'aria-disabled="true"':""}>
+      <span class="num">${lock?"🔒":i+1}</span>
+      <span><small>Level ${i+1} · ${c.sub}</small><b>${c.title}</b><span class="ar">${c.ar}</span></span>
+      <span class="stars">${done?"★".repeat(done)+"☆".repeat(3-done):i===cur?"▶":""}</span></button>`}).join("")}</div>
+   <div class="sec">Badges</div>
+   <div class="badges">${BADGES.map(([id,ic,label])=>`<div class="bdg ${p.badges[id]?"on":""}"><i>${ic}</i>${label}</div>`).join("")}</div>
+   <p class="note">Each level gives up to 3 stars. Replay levels any time to farm XP.</p>`;
+  $("#back").onclick=home;
+  $("#blitz").onclick=()=>{if(blitzOpen)blitzIntro();else{$("#blitz").classList.add("shake");setTimeout(()=>$("#blitz").classList.remove("shake"),400)}};
+  app.querySelectorAll(".lvl").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(unlocked(p,i))startLesson(i);else{b.classList.add("shake");setTimeout(()=>b.classList.remove("shake"),400)}});
+}
+
+/* ---------- Lesson engine ---------- */
+let S=null;
+function buildSteps(c){
+  const steps=[{t:"tip"}];const ws=shuffle(c.words);const kinds=["meaning","listen","reverse"];
+  ws.slice(0,8).forEach((w,i)=>{steps.push({t:kinds[i%3],w});if(i===3)steps.push({t:"match"})});
+  shuffle(c.sentences).slice(0,3).forEach(s=>steps.push({t:"build",s}));
+  return steps;
+}
+function startLesson(i){const c=COURSE[i];S={i,c,steps:buildSteps(c),pos:0,right:0,wrong:0,combo:0,best:0,xp:0,fast:0,retried:new Set(),t0:0};step()}
+function shell(inner,canCheck){
+  const pct=Math.round(S.pos/S.steps.length*100);
+  app.innerHTML=`<div class="lessonbar"><button class="ghost" id="quit" aria-label="Quit level">✕</button><div class="progress"><i style="width:${pct}%"></i></div><span class="combo-chip">${S.combo>=2?"x"+S.combo:""}</span></div>
+    <div class="stage" id="stage">${inner}</div>
+    <div class="footer" id="foot"><div id="verdict" hidden></div><button class="btn wide" id="check" ${canCheck?"":"disabled"}>Check</button></div>`;
+  $("#quit").onclick=quitView; S.t0=Date.now();
+}
+function quitView(){
+  app.innerHTML=`<div class="finish"><h2>Quit level?</h2><p class="muted" style="font-weight:700">You'll lose the XP from this run.</p>
+   <button class="btn wide" id="stay">Keep playing</button><button class="ghost" id="leave" style="color:var(--bad)">Quit</button></div>`;
+  $("#stay").onclick=step;$("#leave").onclick=hub;
+}
+const distract=(w,n)=>shuffle(S.c.words.filter(x=>x!==w&&x[2]!==w[2])).slice(0,n);
+function step(){
+  if(S.pos>=S.steps.length)return finish();
+  const st=S.steps[S.pos];
+  ({tip:stepTip,meaning:stepChoice,listen:stepChoice,reverse:stepChoice,match:stepMatch,build:stepBuild})[st.t](st);
+}
+function stepTip(){
+  const c=S.c;
+  shell(`<div class="kind">Level ${S.i+1} briefing</div><h2 class="prompt">${c.title}</h2>
+   <div class="tip"><span class="flag">${c.tip.h}</span><ul>${c.tip.items.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+   <div class="kind" style="margin-top:4px">New words · tap to hear</div>
+   <div class="wordlist">${c.words.map((w,k)=>`<button class="wl" data-k="${k}"><span class="en">${esc(w[2])}</span><span class="tr">${esc(w[1])}</span><span class="ar">${esc(w[0])}</span></button>`).join("")}</div>`,true);
+  app.querySelectorAll(".wl").forEach(b=>b.onclick=()=>speak(c.words[+b.dataset.k][0]));
+  $("#check").textContent="Start";$("#check").onclick=()=>{S.pos++;step()};
+}
+function stepChoice(st){
+  const w=st.w,opts=shuffle([w,...distract(w,3)]);
+  let head;
+  if(st.t==="meaning") head=`<div class="kind">What does this mean?</div><div class="bigword"><button class="speaker" id="say" aria-label="Play">${SPK}</button><div>${arw(w)}</div></div>`;
+  else if(st.t==="listen") head=`<div class="kind">Listen. What does it mean?</div><button class="speaker big" id="say" aria-label="Play">${SPK}</button><button class="ghost" id="slow" style="align-self:center">🐢 Slower</button>`;
+  else head=`<div class="kind">Pick the Arabic</div><h2 class="prompt">"${esc(w[2])}"</h2>`;
+  const body=opts.map((o,k)=>`<button class="opt" data-k="${k}">${st.t==="reverse"?arw(o):esc(o[2])}</button>`).join("");
+  shell(head+`<div class="options">${body}</div>`,false);
+  if(st.t!=="reverse"){$("#say").onclick=()=>speak(w[0]);setTimeout(()=>speak(w[0]),250)}
+  const sl=$("#slow"); if(sl) sl.onclick=()=>speak(w[0],true);
+  let sel=null;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    app.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");sel=opts[+b.dataset.k];
+    if(st.t==="reverse")speak(sel[0]);$("#check").disabled=false});
+  $("#check").onclick=()=>{if(!sel)return;const ok=sel===w;
+    app.querySelectorAll(".opt").forEach(b=>{const o=opts[+b.dataset.k];if(o===w)b.classList.add("right");else if(o===sel)b.classList.add("wrong");b.disabled=true});
+    verdict(ok,`<span class="ar">${esc(w[0])}</span> <span class="tr">(${esc(w[1])})</span> = ${esc(w[2])}`)};
+}
+function stepMatch(){
+  const ws=shuffle(S.c.words).slice(0,5),L=shuffle(ws),R=shuffle(ws);
+  shell(`<div class="kind">Match the pairs</div><h2 class="prompt">Tap the Arabic, then its meaning</h2>
+   <div class="pairs"><div class="col">${L.map((w,k)=>`<button class="opt" data-s="l" data-k="${k}">${arw(w)}</button>`).join("")}</div>
+   <div class="col">${R.map((w,k)=>`<button class="opt" data-s="r" data-k="${k}">${esc(w[2])}</button>`).join("")}</div></div>`,false);
+  $("#check").hidden=true;
+  let pick=null,left=5,miss=0;
+  app.querySelectorAll(".pairs .opt").forEach(b=>b.onclick=()=>{
+    const w=(b.dataset.s==="l"?L:R)[+b.dataset.k]; if(b.dataset.s==="l")speak(w[0]);
+    if(!pick||pick.dataset.s===b.dataset.s){app.querySelectorAll(".pairs .opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");pick=b;return}
+    const pw=(pick.dataset.s==="l"?L:R)[+pick.dataset.k];
+    if(pw===w){blip(true);[pick,b].forEach(x=>{x.classList.remove("sel");x.classList.add("right");x.disabled=true});const a=pick,bb=b;setTimeout(()=>{a.classList.add("gone");bb.classList.add("gone")},350);pick=null;
+      if(--left===0){S.right++;S.combo++;S.best=Math.max(S.best,S.combo);const g=10+Math.min(miss?0:10,10);S.xp+=g;popText(miss?`+${g} XP`:`Perfect +${g} XP`);setTimeout(()=>{S.pos++;step()},600)}}
+    else{blip(false);miss++;[pick,b].forEach(x=>x.classList.add("wrong"));const a=pick,bb=b;setTimeout(()=>{a.classList.remove("wrong","sel");bb.classList.remove("wrong")},450);pick=null}
+  });
+}
+function stepBuild(st){
+  const s=st.s,used=new Set(s.w.map(t=>t[0]));
+  const pool=[];S.c.sentences.forEach(x=>x.w.forEach(t=>{if(!used.has(t[0])&&!pool.some(p=>p[0]===t[0]))pool.push(t)}));
+  const tiles=shuffle([...s.w,...shuffle(pool).slice(0,2)]);
+  shell(`<div class="kind">Build it in Arabic</div><h2 class="prompt">"${esc(s.en)}"</h2>
+   <div class="tray" id="tray" aria-label="Your answer"></div>
+   <div class="bank" id="bank">${tiles.map((t,k)=>`<button class="tile" data-k="${k}"><span class="ar">${esc(t[0])}</span><span class="tr">${esc(t[1])}</span></button>`).join("")}</div>
+   <p class="small" style="text-align:center;margin:0">← Arabic reads right to left. Start on the right.</p>`,false);
+  const ans=[];
+  const redraw=()=>{$("#tray").innerHTML=ans.map((k,j)=>`<button class="tile" data-j="${j}"><span class="ar">${esc(tiles[k][0])}</span><span class="tr">${esc(tiles[k][1])}</span></button>`).join("");
+    app.querySelectorAll("#bank .tile").forEach(b=>b.classList.toggle("used",ans.includes(+b.dataset.k)));
+    app.querySelectorAll("#tray .tile").forEach(b=>b.onclick=()=>{ans.splice(+b.dataset.j,1);redraw()});
+    $("#check").disabled=!ans.length};
+  app.querySelectorAll("#bank .tile").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(ans.includes(k))return;ans.push(k);speak(tiles[k][0]);redraw()});
+  const full=s.w.map(t=>t[0]).join(" ");
+  $("#check").onclick=()=>{const ok=ans.map(k=>tiles[k][0]).join(" ")===full;
+    app.querySelectorAll(".tile").forEach(b=>b.disabled=true);
+    verdict(ok,`<span class="ar">${esc(full)}</span><br><span class="tr">${esc(s.w.map(t=>t[1]).join(" "))}</span>`);if(ok)speak(full)};
+}
+function verdict(ok,answerHtml){
+  const foot=$("#foot"),v=$("#verdict"),st=S.steps[S.pos];
+  const secs=(Date.now()-S.t0)/1000,fast=ok&&secs<6&&st.t!=="build"||ok&&st.t==="build"&&secs<15;
+  let gain=0;
+  if(ok){S.right++;S.combo++;S.best=Math.max(S.best,S.combo);gain=10+Math.min(S.combo-1,5)*2+(fast?5:0);if(fast)S.fast++;S.xp+=gain;blip(true);
+    if(S.combo>=3)popText(`Combo x${S.combo}${fast?" · fast":""}`);else if(fast)popText("Fast +5");}
+  else{S.wrong++;S.combo=0;blip(false);foot.parentElement.querySelector(".stage").classList.add("shake");
+    if(!S.retried.has(S.pos)){S.retried.add(S.pos);S.steps.push({...st,retry:true})}}
+  foot.className="footer "+(ok?"ok":"no");v.hidden=false;
+  v.innerHTML=`<div class="verdict">${ok?["Nice!","Clean!","Let's go!","Sharp!","On fire!"][Math.random()*5|0]+` +${gain} XP`:"Not quite"}</div>${ok?"":`<div class="verdict-sub">Answer: ${answerHtml}</div>`}`;
+  const b=$("#check");b.textContent="Continue";b.disabled=false;b.className="btn wide "+(ok?"good":"bad");b.onclick=()=>{S.pos++;step()};
+}
+function finish(){
+  const p=P(),c=S.c,total=S.right+S.wrong,acc=total?Math.round(S.right/total*100):100;
+  const stars=S.wrong===0?3:S.wrong<=2?2:1,prev=p.done[c.id]||0,first=!prev;
+  const bonus=(first?50:10)+(stars===3?25:0);S.xp+=bonus;
+  p.done[c.id]=Math.max(prev,stars);p.bestCombo=Math.max(p.bestCombo,S.best);
+  const news=award(p,S.xp);const nextLvl=COURSE[S.i+1];
+  app.innerHTML=`<div class="finish"><div class="kind">Level ${S.i+1} complete</div><h2>${stars===3?"Flawless!":stars===2?"Great run!":"Cleared!"}</h2>
+   <div class="stars">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
+   <div class="tiles"><div class="stat"><small>XP</small><b style="color:var(--gold)">+${S.xp}</b></div><div class="stat"><small>Accuracy</small><b>${acc}%</b></div><div class="stat"><small>Best combo</small><b>${S.best}</b></div></div>
+   ${first&&nextLvl?`<div class="unlock">🔓 Unlocked: Level ${S.i+2} · ${nextLvl.title}</div>`:""}
+   ${first&&S.i===0?`<div class="unlock">⚡ Blitz mode unlocked</div>`:""}
+   <button class="btn gold wide" id="next">${nextLvl&&first?"Next level":"Continue"}</button><button class="ghost" id="again">Replay level</button></div>`;
+  confetti();fanfare();toasts(news);
+  $("#next").onclick=()=>nextLvl&&first?startLesson(S.i+1):hub();$("#again").onclick=()=>startLesson(S.i);
+}
+
+/* ---------- Blitz: 60-second timed challenge on words from cleared levels ---------- */
+let B=null;
+function blitzIntro(){
+  const p=P(),n=COURSE.filter(c=>p.done[c.id]).reduce((a,c)=>a+c.words.length,0);
+  app.innerHTML=`<div class="lessonbar"><button class="ghost" id="x">✕</button><span class="spacer"></span></div>
+   <div class="finish"><div style="font-size:64px">⚡</div><h2>Blitz</h2>
+   <p class="muted" style="font-weight:700;line-height:1.5;margin:0">60 seconds. Answer as many as you can.<br>Right answer: +1 point. Every 5 in a row: +3 seconds.<br>Wrong answer: −3 seconds.</p>
+   <div class="tiles"><div class="stat"><small>Best</small><b style="color:var(--gold)">${p.blitzBest}</b></div><div class="stat"><small>Word pool</small><b>${n}</b></div><div class="stat"><small>Time</small><b>60s</b></div></div>
+   <button class="btn gold wide" id="go">Start</button></div>`;
+  $("#x").onclick=hub;$("#go").onclick=blitzStart;
+}
+function blitzStart(){
+  const p=P(),pool=COURSE.filter(c=>p.done[c.id]).flatMap(c=>c.words);
+  B={pool,score:0,run:0,best:0,end:Date.now()+60000,timer:null,lock:false,last:null};
+  B.timer=setInterval(blitzTick,100);blitzQ();
+}
+function blitzTick(){const left=Math.max(0,B.end-Date.now());const t=$("#tmr");if(t){t.textContent=Math.ceil(left/1000)+"s";t.classList.toggle("low",left<10000)}
+  const bar=$("#tbar");if(bar)bar.style.width=Math.min(100,left/600)+"%";if(left<=0)blitzEnd()}
+function blitzQ(){
+  let w;do{w=B.pool[Math.random()*B.pool.length|0]}while(B.pool.length>4&&w===B.last);B.last=w;
+  const rev=Math.random()<.5,opts=shuffle([w,...shuffle(B.pool.filter(x=>x!==w&&x[2]!==w[2]&&x[0]!==w[0])).slice(0,3)]);
+  app.innerHTML=`<div class="lessonbar"><button class="ghost" id="x" aria-label="Stop">✕</button><div class="progress"><i id="tbar" style="width:100%"></i></div><span class="timer" id="tmr">60s</span></div>
+   <div class="stage"><div style="display:flex;justify-content:space-between;align-items:center"><span class="blitzscore">Score ${B.score}</span><span class="combo-chip">${B.run>=2?"x"+B.run:""}</span></div>
+   ${rev?`<div class="kind">Pick the Arabic</div><h2 class="prompt">"${esc(w[2])}"</h2>`:`<div class="kind">What does it mean?</div><div class="bigword"><div>${arw(w)}</div></div>`}
+   <div class="options">${opts.map((o,k)=>`<button class="opt" data-k="${k}">${rev?arw(o):esc(o[2])}</button>`).join("")}</div></div>`;
+  blitzTick();
+  $("#x").onclick=()=>{clearInterval(B.timer);hub()};
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(B.lock)return;B.lock=true;const o=opts[+b.dataset.k],ok=o===w;
+    app.querySelectorAll(".opt").forEach(x=>{if(opts[+x.dataset.k]===w)x.classList.add("right")});
+    if(ok){B.score++;B.run++;B.best=Math.max(B.best,B.run);blip(true);if(B.run%5===0){B.end+=3000;popText("+3s")}}
+    else{b.classList.add("wrong");B.run=0;B.end-=3000;blip(false);popText("−3s")}
+    setTimeout(()=>{B.lock=false;if(Date.now()<B.end)blitzQ()},ok?250:700);
+  });
+}
+function blitzEnd(){
+  clearInterval(B.timer);const p=P(),rec=B.score>p.blitzBest;
+  if(rec)p.blitzBest=B.score;p.bestCombo=Math.max(p.bestCombo,B.best);
+  const xp=B.score*5+(rec&&B.score>0?20:0);const news=award(p,xp);
+  app.innerHTML=`<div class="finish"><div class="kind">Time's up</div><h2>${rec&&B.score>0?"New record!":"Blitz over"}</h2>
+   <div class="tiles"><div class="stat"><small>Score</small><b style="color:var(--gold)">${B.score}</b></div><div class="stat"><small>Best</small><b>${p.blitzBest}</b></div><div class="stat"><small>XP</small><b>+${xp}</b></div></div>
+   <button class="btn gold wide" id="again">Run it back</button><button class="ghost" id="home">Back to levels</button></div>`;
+  if(rec&&B.score>0)confetti();fanfare();toasts(news);
+  $("#again").onclick=blitzStart;$("#home").onclick=hub;
+}
+
+state.active!=null&&state.players[state.active]?hub():home();
+</script>
+<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
+</body></html>
